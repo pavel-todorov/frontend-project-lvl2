@@ -24,15 +24,6 @@ jobs:
       - name: Setup project
         run: npm install 
         
-#       - name: Setup yarn
-#         run: npm install yarn
-        
-#       - name: Configure yarn
-#         run: yarn install
-      
-#       - name: Build yarn
-#         run: yarn build
-
       - name: Lint check
         run: make lint
 
