@@ -8,6 +8,7 @@ program
   .helpOption('-h, --help', 'output usage information')
   .option('-f, --format [type]', 'output format');
 
+/* eslint no-console: 0 */
 program
   .arguments('[filepath1] [filepath2]')
   .action(async (file1, file2) => {
