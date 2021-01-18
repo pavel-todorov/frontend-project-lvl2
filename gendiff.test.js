@@ -10,5 +10,5 @@ const normalTestCaseWithSimpleDataExpectation = `{
 }`;
 
 test('Test with json normal case', () => {
-    expect(getDiff('./test_data/file1.json', './test_data/file2.json')).toBe(normalTestCaseWithSimpleDataExpectation);
+  expect(getDiff('./test_data/file1.json', './test_data/file2.json')).toBe(normalTestCaseWithSimpleDataExpectation);
 });
