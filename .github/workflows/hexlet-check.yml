@@ -30,8 +30,8 @@ jobs:
       - name: Configure yarn
         run: yarn install
       
-      - name: Build yarn
-        run: yarn build
+#       - name: Build yarn
+#         run: yarn build
 
       - name: Lint check
         run: make lint
