@@ -23,11 +23,11 @@ jobs:
 
       - name: Lint check
         uses: hexlet/project-action@release
-          run: make lint
+        run: make lint
 
       - name: Testing
         uses: hexlet/project-action@release
-          run: make test
+        run: make test
 
       - name: Hexlet project check
         uses: hexlet/project-action@release
