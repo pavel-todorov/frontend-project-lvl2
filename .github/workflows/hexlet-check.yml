@@ -30,6 +30,16 @@ jobs:
       - name: Testing
         run: make test
 
+      - name: Coverage
+        run: npm install -g yarn
+        run: yarn install
+        run: yarn build
+        uses: paambaati/codeclimate-action@v2.2.4
+        env:
+          CC_TEST_REPORTER_ID: 239fc208dff33b93bb11fef6ce32256b2f3cc95a25b3acbf74342a8e3ac4bb59
+        with:
+          coverageCommand: yarn coverage
+
       - name: Hexlet project check
         uses: hexlet/project-action@release
         with:
