@@ -37,7 +37,7 @@ jobs:
         run: make test
 
       - name: Coverage
-        uses: paambaati/codeclimate-action@v2.2.4
+        uses: paambaati/codeclimate-action@v2.7.5
         env:
           CC_TEST_REPORTER_ID: 239fc208dff33b93bb11fef6ce32256b2f3cc95a25b3acbf74342a8e3ac4bb59
         with:
