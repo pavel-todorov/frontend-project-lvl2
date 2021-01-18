@@ -21,6 +21,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Lint check
+        uses: hexlet/project-action@release
+          run: make lint
+
+      - name: Testing
+        uses: hexlet/project-action@release
+          run: make test
+
       - name: Hexlet project check
         uses: hexlet/project-action@release
         with:
