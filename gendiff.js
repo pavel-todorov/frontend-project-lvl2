@@ -47,7 +47,7 @@ module.exports = async function (path1, path2) {
     }
   }
 
-  console.log(`Source:\n${path1}\n${path2}`);
+  // console.log(`Source:\n${path1}\n${path2}`);
   try {
     const resultArray = new ResultArray();
     const readFilesResults = await Promise.all(
