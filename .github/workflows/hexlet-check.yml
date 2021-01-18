@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Setup
+        run: npm install
+
       - name: Lint check
         run: make lint
 
