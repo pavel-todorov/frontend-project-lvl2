@@ -11,7 +11,7 @@ const sortAsc = (a, b) => {
   return 0;
 };
 
-module.exports = async function getDiff(path1, path2) {
+module.exports = function getDiff(path1, path2) {
   class ResultItem {
     constructor(state, key, value) {
       this.state = state;
@@ -53,13 +53,8 @@ module.exports = async function getDiff(path1, path2) {
   // console.log(`Source:\n${path1}\n${path2}`);
   try {
     const resultArray = new ResultArray();
-    const readFilesResults = await Promise.all(
-      [
-        fs.promises.readFile(path1),
-        fs.promises.readFile(path2),
-      ],
-    );
-    const [object1, object2] = readFilesResults.map((item) => JSON.parse(item));
+    const object1 = JSON.parse(fs.readFileSync(path1));
+    const object2 = JSON.parse(fs.readFileSync(path2));
 
     lodash.forIn(object1, (value, key) => {
       const obj2Value = lodash.get(object2, key);
