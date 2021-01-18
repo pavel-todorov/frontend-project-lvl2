@@ -1,33 +1,36 @@
-var fs = require('fs');
-var lodash = require('lodash');
+const fs = require('fs');
+const lodash = require('lodash');
 
 const sortAsc = (a, b) => {
   if (a.key > b.key) {
     return 1;
-  } else if (a.key < b.key) {
+  }
+  if (a.key < b.key) {
     return -1;
   }
   return 0;
 };
 
-module.exports = async function (path1, path2) { 
+module.exports = async function getDiff(path1, path2) {
   class ResultItem {
-    constructor(state, key, value)  {
+    constructor(state, key, value) {
       this.state = state;
       this.key = key;
       this.value = value;
     }
 
     toString() {
-      return `  ${this.state} ${this.key}: ${this.value}`
+      return `  ${this.state} ${this.key}: ${this.value}`;
     }
   }
 
   class ResultArray {
-    data = new Map();
+    constructor() {
+      this.data = new Map();
+    }
+    // data = new Map();
 
     push(item) {
-      // console.log(`Result array: ${JSON.stringify(Array.from(this.data))}, add: ${item.toString()}, item.key: ${this.data.get(item.key)}`);
       if (this.data.get(item.key) === undefined) {
         this.data.set(item.key, []);
       }
@@ -36,11 +39,11 @@ module.exports = async function (path1, path2) {
 
     toString() {
       const res = [];
-      for (var value of this.data.values()) {
+      this.data.forEach((value) => {
         value.forEach((item) => {
           res.push(item);
         });
-      }
+      });
       return res
         .sort(sortAsc)
         .map((item) => item.toString()).join('\n');
@@ -51,8 +54,11 @@ module.exports = async function (path1, path2) {
   try {
     const resultArray = new ResultArray();
     const readFilesResults = await Promise.all(
-      [fs.promises.readFile(path1),
-      fs.promises.readFile(path2)]);
+      [
+        fs.promises.readFile(path1),
+        fs.promises.readFile(path2),
+      ],
+    );
     const [object1, object2] = readFilesResults.map((item) => JSON.parse(item));
 
     lodash.forIn(object1, (value, key) => {
@@ -62,7 +68,7 @@ module.exports = async function (path1, path2) {
         resultArray.push(new ResultItem(' ', key, value));
       } else if (obj2Value === undefined) {
         resultArray.push(new ResultItem('-', key, value));
-      } else if (obj2Value != value) {
+      } else if (obj2Value !== value) {
         resultArray.push(new ResultItem('-', key, value));
         resultArray.push(new ResultItem('+', key, obj2Value));
       }
@@ -75,8 +81,7 @@ module.exports = async function (path1, path2) {
       }
     });
     return `{\n${resultArray.toString()}\n}`;
-  }
-  catch(err) {
+  } catch (err) {
     return err;
   }
 };
