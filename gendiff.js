@@ -1,55 +1,8 @@
 const fs = require('fs');
 const lodash = require('lodash');
-
-const sortAsc = (a, b) => {
-  if (a.key > b.key) {
-    return 1;
-  }
-  if (a.key < b.key) {
-    return -1;
-  }
-  return 0;
-};
+const { ResultArray, ResultItem } = require('./getdiff-helpers');
 
 module.exports = function getDiff(path1, path2) {
-  class ResultItem {
-    constructor(state, key, value) {
-      this.state = state;
-      this.key = key;
-      this.value = value;
-    }
-
-    toString() {
-      return `  ${this.state} ${this.key}: ${this.value}`;
-    }
-  }
-
-  class ResultArray {
-    constructor() {
-      this.data = new Map();
-    }
-    // data = new Map();
-
-    push(item) {
-      if (this.data.get(item.key) === undefined) {
-        this.data.set(item.key, []);
-      }
-      this.data.get(item.key).push(item);
-    }
-
-    toString() {
-      const res = [];
-      this.data.forEach((value) => {
-        value.forEach((item) => {
-          res.push(item);
-        });
-      });
-      return res
-        .sort(sortAsc)
-        .map((item) => item.toString()).join('\n');
-    }
-  }
-
   // console.log(`Source:\n${path1}\n${path2}`);
   try {
     const resultArray = new ResultArray();
