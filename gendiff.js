@@ -1,13 +1,24 @@
-const fs = require('fs');
 const lodash = require('lodash');
 const { ResultArray, ResultItem } = require('./getdiff-helpers');
+const { getObject } = require('./parsers');
 
 module.exports = function getDiff(path1, path2) {
-  // console.log(`Source:\n${path1}\n${path2}`);
   try {
     const resultArray = new ResultArray();
-    const object1 = JSON.parse(fs.readFileSync(path1));
-    const object2 = JSON.parse(fs.readFileSync(path2));
+    const objects = [path1, path2].map((path) => ({ path, object: getObject(path) }));
+    const error = objects.find((value) => value.object === undefined);
+    if (error !== undefined) {
+      return JSON.stringify({
+        error: `Can't parse ${error.path} file.`,
+      });
+    }
+    const object1 = getObject(path1);
+    const object2 = getObject(path2);
+    if (object2 === undefined) {
+      return JSON.stringify({
+        error: `Can't parse ${path2} file.`,
+      });
+    }
 
     lodash.forIn(object1, (value, key) => {
       const obj2Value = lodash.get(object2, key);
@@ -30,6 +41,8 @@ module.exports = function getDiff(path1, path2) {
     });
     return `{\n${resultArray.toString()}\n}`;
   } catch (err) {
-    return err;
+    return JSON.stringify({
+      error: err,
+    });
   }
 };
