@@ -16,20 +16,15 @@ test('Test with json normal case', () => {
   expect(getDiff(getFixturePath('file1.json'), getFixturePath('file2.json'))).toBe(normalTestCaseWithSimpleDataExpectation);
 });
 
-test('Test with json error open file', () => {
-  expect(JSON.parse(getDiff(getFixturePath('file1.jso'), getFixturePath('file2.json')))).toEqual(
-    expect.objectContaining({
-      error: expect.any(String),
-    }),
-  );
-});
-
 test('Test with yaml normal case', () => {
   expect(getDiff(getFixturePath('file1.yml'), getFixturePath('file2.yml'))).toBe(normalTestCaseWithSimpleDataExpectation);
 });
 
-test('Test with yaml error open file', () => {
-  expect(JSON.parse(getDiff(getFixturePath('file1.yml'), getFixturePath('file2.ym')))).toEqual(
+test.each([
+  ['file1.jso', 'file2.json'],
+  ['file1.yml', 'file2.ym'],
+])('Test with error files (%s, %s)', (a, b) => {
+  expect(JSON.parse(getDiff(getFixturePath(a), getFixturePath(b)))).toEqual(
     expect.objectContaining({
       error: expect.any(String),
     }),

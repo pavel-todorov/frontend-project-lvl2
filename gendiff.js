@@ -12,13 +12,7 @@ module.exports = function getDiff(path1, path2) {
         error: `Can't parse ${error.path} file.`,
       });
     }
-    const object1 = getObject(path1);
-    const object2 = getObject(path2);
-    if (object2 === undefined) {
-      return JSON.stringify({
-        error: `Can't parse ${path2} file.`,
-      });
-    }
+    const [object1, object2] = objects;
 
     lodash.forIn(object1, (value, key) => {
       const obj2Value = lodash.get(object2, key);
