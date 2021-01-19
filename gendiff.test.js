@@ -1,3 +1,4 @@
+const path = require('path');
 const getDiff = require('./gendiff');
 
 const normalTestCaseWithSimpleDataExpectation = `{
@@ -9,6 +10,8 @@ const normalTestCaseWithSimpleDataExpectation = `{
   + verbose: true
 }`;
 
+const getFixturePath = (fileName) => path.join(__dirname, '/__fixtures__', fileName);
+
 test('Test with json normal case', () => {
-  expect(getDiff('./test_data/file1.json', './test_data/file2.json')).toBe(normalTestCaseWithSimpleDataExpectation);
+  expect(getDiff(getFixturePath('file1.json'), getFixturePath('file2.json'))).toBe(normalTestCaseWithSimpleDataExpectation);
 });
