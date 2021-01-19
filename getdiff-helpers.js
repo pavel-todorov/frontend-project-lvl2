@@ -24,6 +24,10 @@ class ResultArray {
     this.data.get(item.key).push(item);
   }
 
+  pushAll(items) {
+    items.forEach((item) => this.push(item));
+  }
+
   toString() {
     const res = [];
     this.data.forEach((value) => {
