@@ -49,7 +49,6 @@ const compareObjectsByFields = (object1, object2, fields) => {
     } else {
       const value1 = lodash.get(object1, field);
       const value2 = lodash.get(object2, field);
-      // console.log(`CompareObjectByFields(${field}): ${JSON.stringify(value1)}, ${JSON.stringify(value2)}, ${JSON.stringify(specialCases)}`);
       if (isObjectAndNotNull(value1) && isObjectAndNotNull(value2)) {
         resultArray.push(new ResultItem(' ', field));
       } else if (value1 === undefined && isObjectAndNotNull(value2)) {
@@ -76,7 +75,6 @@ const compareObjectsByFields = (object1, object2, fields) => {
           specialCases.checkGroupRemoved = field;
         }
         specialCases.lastInGroup.set(field, new ResultItem('+', field, value2));
-        // console.log(`+SpecialCases(${specialCases.lastInGroup.size}): ${JSON.stringify(specialCases)}`);
       } else if (!isObjectAndNotNull(value1) && isObjectAndNotNull(value2)) {
         resultArray.push(new ResultItem('-', field, value1));
         resultArray.push(new ResultItem('+', field));
