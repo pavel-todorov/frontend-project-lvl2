@@ -1,5 +1,4 @@
 const lodash = require('lodash');
-const { sortAsc } = require('./utils/sorters');
 
 class ResultItem {
   constructor(state, key, value = undefined) {
@@ -20,83 +19,45 @@ class ResultItem {
     return lodash.last(this.key.split('.'));
   }
 
+  isCloseBracket() {
+    return this.state === '<';
+  }
+
   toString() {
     const offset = ' '.repeat(this.getKeyLevel() * 4 - 2);
     if (this.hasValue()) {
       return `${offset}${this.state} ${this.getKeyToPrint()}: ${this.value}`;
     }
-    if (this.state !== '') {
+    if (!this.isCloseBracket()) {
       return `${offset}${this.state} ${this.getKeyToPrint()}: {`;
     }
     return `${offset}  }`;
   }
 }
 
-const addCloseBrackets = (sorted) => {
-  let currentOpenKey = '';
-  let currentStatusIsPlus = false;
-  const currentPropertiesArray = [];
-  const withAddedCloseElements = [];
-  const checkItem = (item) => {
-    if (currentOpenKey !== '' && !lodash.startsWith(item.key, currentOpenKey)) {
-      withAddedCloseElements.push(new ResultItem('', currentOpenKey));
-      currentPropertiesArray.pop();
-      console.log(`< CurrentPropertiesArray ('${currentOpenKey}', '${item.key}'): ${JSON.stringify(currentPropertiesArray)}`);
-      if (currentPropertiesArray.length > 0) {
-        currentOpenKey = lodash.last(currentPropertiesArray).currentOpenKey;
-        currentStatusIsPlus = lodash.last(currentPropertiesArray).currentStatusIsPlus;
-      } else {
-        currentOpenKey = '';
-        currentStatusIsPlus = false;
-      }
-    }
-  };
-  sorted.forEach((item) => {
-    checkItem(item);
-    if (currentStatusIsPlus) {
-      withAddedCloseElements.push(new ResultItem(' ', item.key, item.value));
-    } else {
-      withAddedCloseElements.push(item);
-    }
-    if (!item.hasValue()) {
-      checkItem(item);
-      currentOpenKey = item.key;
-      currentStatusIsPlus = item.state === '+';
-      currentPropertiesArray.push({ currentOpenKey, currentStatusIsPlus });
-      console.log(`> CurrentPropertiesArray ('${currentOpenKey}', '${item.key}'): ${JSON.stringify(currentPropertiesArray)}`);
-    }
-  });
-  return withAddedCloseElements;
-};
-
 class ResultArray {
   constructor() {
-    this.data = new Map();
+    this.data = [];
   }
 
   push(item) {
-    if (this.data.get(item.key) === undefined) {
-      this.data.set(item.key, []);
-    }
-    this.data.get(item.key).push(item);
+    this.data.push(item);
   }
 
   pushAll(items) {
     items.forEach((item) => this.push(item));
   }
 
+  insertAfterClosedKey(key, item) {
+    const index = this.data.findIndex((value) => (value.key === `${key}<<<<<` && value.isCloseBracket()));
+    // console.log(`InsertAfterClosedKey(${key}, ${item}): index: ${index}`);
+    if (index >= 0) {
+      this.data.splice(index + 1, 0, item);
+    }
+  }
+
   toString() {
-    const res = [];
-    this.data.forEach((value) => {
-      value.forEach((item) => {
-        res.push(item);
-      });
-    });
-    const sorted = res.sort(sortAsc);
-    const withAddedCloseElements = addCloseBrackets(sorted);
-    const toReturn = withAddedCloseElements.map((item) => item.toString()).join('\n');
-    console.log(`ResultArray:\n${toReturn}`);
-    return toReturn;
+    return this.data.map((item) => item.toString()).join('\n');
   }
 }
 

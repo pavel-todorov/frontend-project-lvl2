@@ -1,67 +1,124 @@
 const lodash = require('lodash');
 const { ResultArray, ResultItem } = require('./getdiff-helpers');
 const { getObject } = require('./parsers');
+const { sortAsc } = require('./utils/sorters');
 
-const compareForward = (object1, object2, path = '') => {
-  let obj1 = object1;
-  let obj2 = object2;
+const getObjectsFields = (src, path = '') => {
+  const result = [];
+  let obj = src;
   let pathPrefix = '';
   if (path !== '') {
-    obj1 = lodash.get(object1, path);
-    obj2 = lodash.get(object2, path);
+    obj = lodash.get(src, path);
     pathPrefix = `${path}.`;
   }
-  const resultArray = [];
-  lodash.forIn(obj1, (value, key) => {
+  lodash.forIn(obj, (value, key) => {
     const fullKey = `${pathPrefix}${key}`;
-    const obj2Value = lodash.get(obj2, key);
-    if (typeof value === 'object') {
-      if (obj2Value === undefined || (typeof obj2Value !== 'object')) {
-        resultArray.push(new ResultItem('-', fullKey));
-      } else {
-        resultArray.push(new ResultItem(' ', fullKey));
-      }
-      resultArray.push(...compareForward(object1, object2, `${pathPrefix}${key}`));
-    } else if (value === obj2Value) {
-      resultArray.push(new ResultItem(' ', fullKey, value));
-    } else if (obj2Value === undefined) {
-      resultArray.push(new ResultItem('-', fullKey, value));
-    } else if (obj2Value !== value) {
-      resultArray.push(new ResultItem('-', fullKey, value));
-      resultArray.push(new ResultItem('+', fullKey, obj2Value));
+    result.push(fullKey);
+    if (typeof value === 'object' && value !== null) {
+      result.push(...getObjectsFields(src, fullKey));
+      result.push(`${fullKey}<<<<<`);
     }
   });
-  return resultArray;
+  return result;
 };
 
-const compareBackward = (object1, object2, path = '') => {
-  let obj1 = object1;
-  let obj2 = object2;
-  let pathPrefix = '';
-  if (path !== '') {
-    obj1 = lodash.get(object1, path);
-    obj2 = lodash.get(object2, path);
-    pathPrefix = `${path}.`;
-  }
-  const resultArray = [];
-  lodash.forIn(obj2, (value, key) => {
-    const fullKey = `${pathPrefix}${key}`;
-    const obj1Value = lodash.get(obj1, key);
-    if (typeof value === 'object') {
-      if (obj1Value === undefined) {
-        resultArray.push(new ResultItem('+', fullKey));
+const isObjectAndNotNull = (src) => (typeof src === 'object' && src !== null);
+
+const isNotSpecialCase = (caseValue, field) => (caseValue === undefined
+  || !lodash.startsWith(field, caseValue));
+
+const isNeedToAddSpecialCase = (caseValue, field) => (caseValue === undefined)
+  || !lodash.startsWith(field, caseValue);
+
+const compareObjectsByFields = (object1, object2, fields) => {
+  const resultArray = new ResultArray();
+  const specialCases = {
+    lastInGroup: new Map(),
+    checkGroupAdded: undefined,
+    checkGroupRemoved: undefined,
+  };
+  fields.forEach((field) => {
+    if (lodash.endsWith(field, '<<<<<')) {
+      resultArray.push(new ResultItem('<', field));
+      if (!lodash.startsWith(field, specialCases.checkGroupAdded)) {
+        specialCases.checkGroupAdded = undefined;
       }
-      resultArray.push(...compareBackward(object1, object2, fullKey));
-    } else if (obj1Value === undefined) {
-      resultArray.push(new ResultItem('+', fullKey, value));
+      if (!lodash.startsWith(field, specialCases.checkGroupRemoved)) {
+        specialCases.checkGroupRemoved = undefined;
+      }
+    } else {
+      const value1 = lodash.get(object1, field);
+      const value2 = lodash.get(object2, field);
+      // console.log(`CompareObjectByFields(${field}): ${JSON.stringify(value1)}, ${JSON.stringify(value2)}, ${JSON.stringify(specialCases)}`);
+      if (isObjectAndNotNull(value1) && isObjectAndNotNull(value2)) {
+        resultArray.push(new ResultItem(' ', field));
+      } else if (value1 === undefined && isObjectAndNotNull(value2)) {
+        if (isNotSpecialCase(specialCases.checkGroupAdded, field)) {
+          resultArray.push(new ResultItem('+', field));
+        } else {
+          resultArray.push(new ResultItem(' ', field));
+        }
+        if (isNeedToAddSpecialCase(specialCases.checkGroupAdded, field)) {
+          specialCases.checkGroupAdded = field;
+        }
+      } else if (isObjectAndNotNull(value1) && value2 === undefined) {
+        if (isNotSpecialCase(specialCases.checkGroupRemoved, field)) {
+          resultArray.push(new ResultItem('-', field));
+        } else {
+          resultArray.push(new ResultItem(' ', field));
+        }
+        if (isNeedToAddSpecialCase(specialCases.checkGroupRemoved, field)) {
+          specialCases.checkGroupRemoved = field;
+        }
+      } else if (isObjectAndNotNull(value1) && !isObjectAndNotNull(value2)) {
+        resultArray.push(new ResultItem('-', field));
+        if (isNeedToAddSpecialCase(specialCases.checkGroupRemoved, field)) {
+          specialCases.checkGroupRemoved = field;
+        }
+        specialCases.lastInGroup.set(field, new ResultItem('+', field, value2));
+        // console.log(`+SpecialCases(${specialCases.lastInGroup.size}): ${JSON.stringify(specialCases)}`);
+      } else if (!isObjectAndNotNull(value1) && isObjectAndNotNull(value2)) {
+        resultArray.push(new ResultItem('-', field, value1));
+        resultArray.push(new ResultItem('+', field));
+      } else if (!isObjectAndNotNull(value1) && value2 === undefined) {
+        // console.log(`CheckRemoved: ${specialCases.checkGroupRemoved}`);
+        if (isNotSpecialCase(specialCases.checkGroupRemoved, field)) {
+          resultArray.push(new ResultItem('-', field, value1));
+        } else {
+          resultArray.push(new ResultItem(' ', field, value1));
+        }
+      } else if (value1 === undefined && !isObjectAndNotNull(value2)) {
+        // console.log(`CheckAdded: ${specialCases.checkGroupAdded}`);
+        if (isNotSpecialCase(specialCases.checkGroupAdded, field)) {
+          resultArray.push(new ResultItem('+', field, value2));
+        } else {
+          resultArray.push(new ResultItem(' ', field, value2));
+        }
+      } else if (!isObjectAndNotNull(value1) && !isObjectAndNotNull(value2)) {
+        if (value1 === value2) {
+          resultArray.push(new ResultItem(' ', field, value1));
+        } else {
+          resultArray.push(new ResultItem('-', field, value1));
+          resultArray.push(new ResultItem('+', field, value2));
+        }
+      }
+      // console.log(`Result: ${resultArray.data.map((item) => item.toString()).join('\n')}`);
     }
   });
+  // console.log(`SpecialCases: ${JSON.stringify(specialCases)}`);
+  if (specialCases.lastInGroup.size > 0) {
+    specialCases.lastInGroup.forEach((toAdd, key) => {
+      // console.log(`Special case (to add): ${key} -> ${toAdd}`);
+      resultArray.insertAfterClosedKey(key, toAdd);
+    });
+  }
+  // console.log(`>>>Result: ${resultArray.data.map((item) => item.toString()).join('\n')}`);
   return resultArray;
 };
 
 const getDiff = (path1, path2) => {
   try {
-    const resultArray = new ResultArray();
+    // const resultArray = new ResultArray();
     const objects = [path1, path2].map((path) => ({ path, object: getObject(path) }));
     const error = objects.find((value) => value.object === undefined);
     if (error !== undefined) {
@@ -71,9 +128,12 @@ const getDiff = (path1, path2) => {
     }
     const [object1, object2] = objects.map((obj) => obj.object);
 
-    // console.log(compareForward(object1, object2));
-    resultArray.pushAll(compareForward(object1, object2));
-    resultArray.pushAll(compareBackward(object1, object2));
+    const fields = lodash.union(getObjectsFields(object1), getObjectsFields(object2))
+      .sort(sortAsc);
+    // console.log(`Fields:\n${fields.join('\n')}`);
+    const resultArray = compareObjectsByFields(object1, object2, fields);
+    // console.log(`ResultArray: ${JSON.stringify(resultArray)}`);
+
     return `{\n${resultArray.toString()}\n}`;
   } catch (err) {
     return JSON.stringify({
@@ -84,6 +144,4 @@ const getDiff = (path1, path2) => {
 
 module.exports = {
   getDiff,
-  compareForward,
-  compareBackward,
 };
