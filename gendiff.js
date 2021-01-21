@@ -133,7 +133,7 @@ const getDiff = (path1, path2, formatter = 'stylish') => {
     const resultArray = compareObjectsByFields(object1, object2, fields);
     // console.log(`ResultArray: ${JSON.stringify(resultArray)}`);
 
-    return createFormatter(formatter)(resultArray);// `{\n${resultArray.toString()}\n}`;
+    return createFormatter(formatter).format(resultArray);
   } catch (err) {
     return JSON.stringify({
       error: err,

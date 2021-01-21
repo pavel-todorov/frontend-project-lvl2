@@ -2,10 +2,16 @@ const stylishFormatter = require('./stylish.js');
 
 const createFormatter = (type) => {
   if (type === 'stylish') {
-    return stylishFormatter;
+    return class {
+      static format(items) {
+        return stylishFormatter(items);
+      }
+    };
   }
-  return function format() {
-    return JSON.stringify({ error: `Undefined formatter: '${type}'` });
+  return class {
+    static format() {
+      return JSON.stringify({ error: `Undefined formatter: '${type}'` });
+    }
   };
 };
 
