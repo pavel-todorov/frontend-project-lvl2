@@ -2,6 +2,7 @@ const lodash = require('lodash');
 const { ResultArray, ResultItem } = require('./getdiff-helpers');
 const { getObject } = require('./parsers');
 const { sortAsc } = require('./utils/sorters');
+const { createFormatter } = require('./formatters/formatter');
 
 const getObjectsFields = (src, path = '') => {
   const result = [];
@@ -114,7 +115,7 @@ const compareObjectsByFields = (object1, object2, fields) => {
   return resultArray;
 };
 
-const getDiff = (path1, path2) => {
+const getDiff = (path1, path2, formatter = 'stylish') => {
   try {
     // const resultArray = new ResultArray();
     const objects = [path1, path2].map((path) => ({ path, object: getObject(path) }));
@@ -132,7 +133,7 @@ const getDiff = (path1, path2) => {
     const resultArray = compareObjectsByFields(object1, object2, fields);
     // console.log(`ResultArray: ${JSON.stringify(resultArray)}`);
 
-    return `{\n${resultArray.toString()}\n}`;
+    return createFormatter(formatter)(resultArray);// `{\n${resultArray.toString()}\n}`;
   } catch (err) {
     return JSON.stringify({
       error: err,

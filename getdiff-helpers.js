@@ -22,17 +22,6 @@ class ResultItem {
   isCloseBracket() {
     return this.state === '<';
   }
-
-  toString() {
-    const offset = ' '.repeat(this.getKeyLevel() * 4 - 2);
-    if (this.hasValue()) {
-      return `${offset}${this.state} ${this.getKeyToPrint()}: ${this.value}`;
-    }
-    if (!this.isCloseBracket()) {
-      return `${offset}${this.state} ${this.getKeyToPrint()}: {`;
-    }
-    return `${offset}  }`;
-  }
 }
 
 class ResultArray {
