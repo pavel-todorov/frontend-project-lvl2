@@ -1,0 +1,15 @@
+{
+  "changings": [
+    { "property": "common.follow", "was": "added", "toValue": false},
+    { "property": "common.setting2", "was": "removed"},
+    { "property": "common.setting3", "was": "updated", "fromValue":true, "toValue":null},
+    { "property": "common.setting4", "was": "added", "toValue": "blah blah"},
+    { "property": "common.setting5", "was": "added", "toValue": "[complex value]"},
+    { "property": "common.setting6.doge.wow", "was": "updated", "fromValue":"", "toValue": "so much"},
+    { "property": "common.setting6.ops", "was": "added", "toValue": "vops"},
+    { "property": "group1.baz", "was": "updated", "fromValue":"bas", "toValue": "bars"},
+    { "property": "group1.nest", "was": "updated", "fromValue":"[complex value]", "toValue": "str"},
+    { "property": "group2", "was": "removed"},
+    { "property": "group3", "was": "added", "toValue": "[complex value]"}
+  ]
+}

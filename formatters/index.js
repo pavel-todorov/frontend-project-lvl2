@@ -1,5 +1,7 @@
+/* eslint-disable max-classes-per-file */
 const stylishFormatter = require('./stylish.js');
 const plainFormatter = require('./plain.js');
+const jsonFomatter = require('./json.js');
 
 const createFormatter = (type) => {
   if (type === 'stylish') {
@@ -13,6 +15,13 @@ const createFormatter = (type) => {
     return class {
       static format(items) {
         return plainFormatter(items);
+      }
+    };
+  }
+  if (type === 'json') {
+    return class {
+      static format(items) {
+        return jsonFomatter(items);
       }
     };
   }

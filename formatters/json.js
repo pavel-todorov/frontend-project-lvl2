@@ -1,0 +1,45 @@
+const valueToString = (value) => {
+  const type = typeof value;
+  if (value === null) {
+    return null;
+  }
+  if (type === 'string') {
+    return `${value}`;
+  }
+  if (type === 'boolean') {
+    return value;
+  }
+  if (type === 'undefined' || type === 'object') {
+    return '[complex value]';
+  }
+  return `${value}`;
+};
+
+const isStateAdd = (item) => item.state === '+';
+const isStateRemove = (item, nextItem) => item.state === '-' && nextItem !== undefined && item.key !== nextItem.key;
+const isStateUpdate = (item, nextItem) => item.state === '-' && nextItem !== undefined && item.key === nextItem.key && nextItem.state === '+';
+
+const itemArrayToString = (itemArray) => {
+  const res = { changings: [] };
+  const data = itemArray.data.filter((item) => item.state !== '' && item.state !== ' ' && item.state !== '<');
+  for (let i = 0; i < data.length; i += 1) {
+    const item = data[i];
+    const nextItem = data[i + 1];
+    if (isStateAdd(item)) {
+      res.changings.push({ property: item.key, was: 'added', toValue: valueToString(item.value) });
+    } else if (isStateRemove(item, nextItem)) {
+      res.changings.push({ property: item.key, was: 'removed' });
+    } else if (isStateUpdate(item, nextItem)) {
+      res.changings.push({
+        property: item.key,
+        was: 'updated',
+        fromValue: valueToString(item.value),
+        toValue: valueToString(nextItem.value),
+      });
+      i += 1;
+    }
+  }
+  return JSON.stringify(res);
+};
+
+module.exports = itemArrayToString;
