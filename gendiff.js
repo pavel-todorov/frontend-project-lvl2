@@ -114,37 +114,28 @@ const checkMatrix = [
 
 const compareObjectsByFields = (object1, object2, fields) => {
   const resultArray = new ResultArray();
-  const specialCases = {
-    lastInGroup: new Map(),
-    checkGroup: new Map(),
-  };
+  const specialCases = { lastInGroup: new Map(), checkGroup: new Map() };
   fields.forEach((field) => {
     if (lodash.endsWith(field, '<<<<<')) {
       resultArray.push(new ResultItem('<', field));
-      if (!lodash.startsWith(field, specialCases.checkGroup.get('+'))) {
-        specialCases.checkGroup.set('+', undefined);
-      }
-      if (!lodash.startsWith(field, specialCases.checkGroup.get('-'))) {
-        specialCases.checkGroup.set('-', undefined);
-      }
+      ['+', '-'].forEach((sign) => {
+        if (!lodash.startsWith(field, specialCases.checkGroup.get(sign))) {
+          specialCases.checkGroup.set(sign, undefined);
+        }
+      });
     } else {
       const value1 = lodash.get(object1, field);
       const value2 = lodash.get(object2, field);
-
-      for (let i = 0; i < checkMatrix.length; i += 1) {
-        const check = checkMatrix[i];
-        if (check.check[0](value1) && check.check[1](value2)) {
+      checkMatrix.some((check) => {
+        const isOk = check.check[0](value1) && check.check[1](value2);
+        if (isOk) {
           check.do(resultArray, specialCases, field, value1, value2);
-          break;
         }
-      }
+        return isOk;
+      });
     }
   });
-  if (specialCases.lastInGroup.size > 0) {
-    specialCases.lastInGroup.forEach((toAdd, key) => {
-      resultArray.insertAfterClosedKey(key, toAdd);
-    });
-  }
+  specialCases.lastInGroup.forEach((toAdd, key) => { resultArray.insertAfter(key, toAdd); });
   return resultArray;
 };
 

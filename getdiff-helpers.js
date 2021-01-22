@@ -37,7 +37,7 @@ class ResultArray {
     items.forEach((item) => this.push(item));
   }
 
-  insertAfterClosedKey(key, item) {
+  insertAfter(key, item) {
     const index = this.data.findIndex((value) => (value.key === `${key}<<<<<` && value.isCloseBracket()));
     // console.log(`InsertAfterClosedKey(${key}, ${item}): index: ${index}`);
     if (index >= 0) {
