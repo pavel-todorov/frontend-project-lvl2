@@ -31,6 +31,13 @@ const isNotSpecialCase = (caseValue, field) => (caseValue === undefined
 const isNeedToAddSpecialCase = (caseValue, field) => (caseValue === undefined)
   || !lodash.startsWith(field, caseValue);
 
+const checkIsNotSpecialCaseAndGenerateItem = (caseValue, field, type, value = undefined) => {
+  if (isNotSpecialCase(caseValue, field)) {
+    return new ResultItem(type, field, value);
+  }
+  return new ResultItem(' ', field, value);
+};
+
 const compareObjectsByFields = (object1, object2, fields) => {
   const resultArray = new ResultArray();
   const specialCases = {
@@ -53,20 +60,12 @@ const compareObjectsByFields = (object1, object2, fields) => {
       if (isObjectAndNotNull(value1) && isObjectAndNotNull(value2)) {
         resultArray.push(new ResultItem(' ', field));
       } else if (value1 === undefined && isObjectAndNotNull(value2)) {
-        if (isNotSpecialCase(specialCases.checkGroupAdded, field)) {
-          resultArray.push(new ResultItem('+', field));
-        } else {
-          resultArray.push(new ResultItem(' ', field));
-        }
+        resultArray.push(checkIsNotSpecialCaseAndGenerateItem(specialCases.checkGroupAdded, field, '+'));
         if (isNeedToAddSpecialCase(specialCases.checkGroupAdded, field)) {
           specialCases.checkGroupAdded = field;
         }
       } else if (isObjectAndNotNull(value1) && value2 === undefined) {
-        if (isNotSpecialCase(specialCases.checkGroupRemoved, field)) {
-          resultArray.push(new ResultItem('-', field));
-        } else {
-          resultArray.push(new ResultItem(' ', field));
-        }
+        resultArray.push(checkIsNotSpecialCaseAndGenerateItem(specialCases.checkGroupRemoved, field, '-'));
         if (isNeedToAddSpecialCase(specialCases.checkGroupRemoved, field)) {
           specialCases.checkGroupRemoved = field;
         }
@@ -81,18 +80,10 @@ const compareObjectsByFields = (object1, object2, fields) => {
         resultArray.push(new ResultItem('+', field));
       } else if (!isObjectAndNotNull(value1) && value2 === undefined) {
         // console.log(`CheckRemoved: ${specialCases.checkGroupRemoved}`);
-        if (isNotSpecialCase(specialCases.checkGroupRemoved, field)) {
-          resultArray.push(new ResultItem('-', field, value1));
-        } else {
-          resultArray.push(new ResultItem(' ', field, value1));
-        }
+        resultArray.push(checkIsNotSpecialCaseAndGenerateItem(specialCases.checkGroupRemoved, field, '-', value1));
       } else if (value1 === undefined && !isObjectAndNotNull(value2)) {
         // console.log(`CheckAdded: ${specialCases.checkGroupAdded}`);
-        if (isNotSpecialCase(specialCases.checkGroupAdded, field)) {
-          resultArray.push(new ResultItem('+', field, value2));
-        } else {
-          resultArray.push(new ResultItem(' ', field, value2));
-        }
+        resultArray.push(checkIsNotSpecialCaseAndGenerateItem(specialCases.checkGroupAdded, field, '+', value2));
       } else if (!isObjectAndNotNull(value1) && !isObjectAndNotNull(value2)) {
         if (value1 === value2) {
           resultArray.push(new ResultItem(' ', field, value1));
