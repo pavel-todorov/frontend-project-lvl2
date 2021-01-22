@@ -2,7 +2,7 @@ const lodash = require('lodash');
 const { ResultArray, ResultItem } = require('./getdiff-helpers');
 const { getObject } = require('./parsers');
 const { sortAsc } = require('./utils/sorters');
-const { createFormatter } = require('./formatters/formatter');
+const { createFormatter } = require('./formatters/index');
 
 const getObjectsFields = (src, path = '') => {
   const result = [];
