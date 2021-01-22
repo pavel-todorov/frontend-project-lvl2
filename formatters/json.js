@@ -10,9 +10,6 @@ const valueToString = (value) => {
   if (value === null) {
     return null;
   }
-  if (type === 'string') {
-    return `${value}`;
-  }
   if (type === 'boolean') {
     return value;
   }
