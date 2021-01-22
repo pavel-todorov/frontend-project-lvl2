@@ -13,3 +13,6 @@ https://asciinema.org/a/6j6PrkFXiDvmTUiHpzTO2Jutb
 
 #### Plain format demo
 https://asciinema.org/a/wahhdrYGR9prDTPdUp1Xsaybu
+
+#### Json format demo
+https://asciinema.org/a/qtUzNGv8iidDGlCYgSZeys923

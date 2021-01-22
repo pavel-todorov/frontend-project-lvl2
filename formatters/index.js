@@ -3,25 +3,14 @@ const stylishFormatter = require('./stylish.js');
 const plainFormatter = require('./plain.js');
 const jsonFomatter = require('./json.js');
 
+const formatters = [['stylish', stylishFormatter], ['plain', plainFormatter], ['json', jsonFomatter]];
+
 const createFormatter = (type) => {
-  if (type === 'stylish') {
+  const formattersMap = new Map(formatters);
+  if (formattersMap.has(type)) {
     return class {
       static format(items) {
-        return stylishFormatter(items);
-      }
-    };
-  }
-  if (type === 'plain') {
-    return class {
-      static format(items) {
-        return plainFormatter(items);
-      }
-    };
-  }
-  if (type === 'json') {
-    return class {
-      static format(items) {
-        return jsonFomatter(items);
+        return formattersMap.get(type)(items);
       }
     };
   }

@@ -1,3 +1,10 @@
+const {
+  isStateAdd,
+  isStateRemove,
+  isStateUpdate,
+  getValuedItems,
+} = require('./utils');
+
 const valueToString = (value) => {
   const type = typeof value;
   if (value === null) {
@@ -12,13 +19,9 @@ const valueToString = (value) => {
   return `${value}`;
 };
 
-const isStateAdd = (item) => item.state === '+';
-const isStateRemove = (item, nextItem) => item.state === '-' && nextItem !== undefined && item.key !== nextItem.key;
-const isStateUpdate = (item, nextItem) => item.state === '-' && nextItem !== undefined && item.key === nextItem.key && nextItem.state === '+';
-
 const itemArrayToString = (itemArray) => {
   const strings = [];
-  const data = itemArray.data.filter((item) => item.state !== '' && item.state !== ' ' && item.state !== '<');
+  const data = getValuedItems(itemArray);
   for (let i = 0; i < data.length; i += 1) {
     const item = data[i];
     const nextItem = data[i + 1];
