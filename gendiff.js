@@ -38,6 +38,13 @@ const checkIsNotSpecialCaseAndGenerateItem = (caseValue, field, type, value = un
   return new ResultItem(' ', field, value);
 };
 
+const computeSpecialCase = (caseValue, field) => {
+  if (isNeedToAddSpecialCase(caseValue, field)) {
+    return field;
+  }
+  return caseValue;
+};
+
 const compareObjectsByFields = (object1, object2, fields) => {
   const resultArray = new ResultArray();
   const specialCases = {
@@ -66,14 +73,10 @@ const compareObjectsByFields = (object1, object2, fields) => {
         }
       } else if (isObjectAndNotNull(value1) && value2 === undefined) {
         resultArray.push(checkIsNotSpecialCaseAndGenerateItem(specialCases.checkGroupRemoved, field, '-'));
-        if (isNeedToAddSpecialCase(specialCases.checkGroupRemoved, field)) {
-          specialCases.checkGroupRemoved = field;
-        }
+        specialCases.checkGroupRemoved = computeSpecialCase(specialCases.checkGroupRemoved, field);
       } else if (isObjectAndNotNull(value1) && !isObjectAndNotNull(value2)) {
         resultArray.push(new ResultItem('-', field));
-        if (isNeedToAddSpecialCase(specialCases.checkGroupRemoved, field)) {
-          specialCases.checkGroupRemoved = field;
-        }
+        specialCases.checkGroupRemoved = computeSpecialCase(specialCases.checkGroupRemoved, field);
         specialCases.lastInGroup.set(field, new ResultItem('+', field, value2));
       } else if (!isObjectAndNotNull(value1) && isObjectAndNotNull(value2)) {
         resultArray.push(new ResultItem('-', field, value1));
