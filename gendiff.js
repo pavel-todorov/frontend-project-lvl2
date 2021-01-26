@@ -162,6 +162,4 @@ const genDiff = (path1, path2, formatter = 'stylish') => {
   }
 };
 
-module.exports = {
-  genDiff,
-};
+module.exports = genDiff;

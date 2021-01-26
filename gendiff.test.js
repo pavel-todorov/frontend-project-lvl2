@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { genDiff } = require('./gendiff');
+const genDiff = require('./gendiff');
 
 const getFixturePath = (fileName) => path.join(__dirname, '/__fixtures__', fileName);
 
