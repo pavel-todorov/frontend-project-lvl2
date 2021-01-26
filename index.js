@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const { program } = require('commander');
-const { genDiff } = require('./gendiff.js');
+const genDiff = require('./gendiff.js');
 
 program
   .allowUnknownOption()
