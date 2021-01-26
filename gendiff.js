@@ -139,7 +139,7 @@ const compareObjectsByFields = (object1, object2, fields) => {
   return resultArray;
 };
 
-const getDiff = (path1, path2, formatter = 'stylish') => {
+const genDiff = (path1, path2, formatter = 'stylish') => {
   try {
     const objects = [path1, path2].map((path) => ({ path, object: getObject(path) }));
     const error = objects.find((value) => value.object === undefined);
@@ -163,5 +163,5 @@ const getDiff = (path1, path2, formatter = 'stylish') => {
 };
 
 module.exports = {
-  getDiff,
+  genDiff,
 };

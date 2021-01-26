@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const { program } = require('commander');
-const { getDiff } = require('./gendiff.js');
+const { genDiff } = require('./gendiff.js');
 
 program
   .allowUnknownOption()
@@ -13,7 +13,7 @@ program
 program
   .arguments('[filepath1] [filepath2]')
   .action((file1, file2) => {
-    const result = getDiff(file1, file2, program.opts().format);
+    const result = genDiff(file1, file2, program.opts().format);
     console.log(`Result:\n${result}`);
   });
 
