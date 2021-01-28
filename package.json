@@ -1,8 +1,9 @@
 {
   "name": "@hexlet/code",
+  "module": "@hexlet/code",
   "version": "1.0.0",
   "description": "Hexlet frontend project level 2",
-  "main": "index.js",
+  "main": "./gendiff.js",
   "scripts": {
     "test": "jest",
     "start": "node index.js"
