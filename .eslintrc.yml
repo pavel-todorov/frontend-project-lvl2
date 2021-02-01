@@ -11,8 +11,4 @@ plugins:
   - jest
 rules: {
   max-classes-per-file: ["error", 3]
-  fp/no-mutation: 
-    error:
-      commonjs: true
-      allowThis: true
 }
