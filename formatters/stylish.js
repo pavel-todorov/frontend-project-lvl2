@@ -1,14 +1,14 @@
 const _ = require('lodash');
 
 const objectToString = (offset, obj) => {
-  let res = [];
+  const res = [];
   _.forIn(obj, (value, key) => {
     if (typeof value === 'object') {
-      res = [...res, `${offset}  ${key}: {`];
-      res = [...res, ...objectToString(`${offset}    `, value)];
-      res = [...res, `${offset}  }`];
+      res.push(`${offset}  ${key}: {`);
+      res.push(...objectToString(`${offset}    `, value));
+      res.push(`${offset}  }`);
     } else {
-      res = [...res, `${offset}  ${key}: ${value}`];
+      res.push(`${offset}  ${key}: ${value}`);
     }
   });
   return res;
