@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { ResultItem } = require('./getdiff-helpers');
 const { getObject } = require('./parsers');
 const { createFormatter } = require('./formatters/index');
+const { sortAscByKey } = require('./utils/sorters');
 
 const isObjectAndNotNull = (src) => (typeof src === 'object' && src !== null);
 
@@ -59,6 +60,7 @@ const compareObjects = (object1, object2, path = '') => {
     }
   });
   findNewFields(object1, object2, path).forEach((item) => res.push(item));
+  res.sort(sortAscByKey);
   return res;
 };
 

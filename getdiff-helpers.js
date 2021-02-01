@@ -1,4 +1,5 @@
 const lodash = require('lodash');
+const { sortAscByKey } = require('./utils/sorters');
 
 class ResultItem {
   constructor(state, key, value = undefined) {
@@ -13,11 +14,9 @@ class ResultItem {
   }
 
   addSubItems(items) {
-    // console.log(`addSubItems: ${JSON.stringify(items)}`);
     if (items.length > 0) {
       this.subItems.push(...items);
     }
-    // console.log(`addSubItems: ${JSON.stringify(this.subItems)}`);
   }
 
   getKeyLevel() {
@@ -44,15 +43,7 @@ class ResultItem {
     if (!this.hasSubItems()) {
       return;
     }
-    this.subItems.sort((a, b) => {
-      if (a.key < b.key) {
-        return -1;
-      }
-      if (a.key > b.key) {
-        return 1;
-      }
-      return 0;
-    });
+    this.subItems.sort(sortAscByKey);
   }
 }
 
