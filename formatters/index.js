@@ -21,6 +21,4 @@ const createFormatter = (type) => {
   };
 };
 
-module.exports = {
-  createFormatter,
-};
+module.exports = createFormatter;

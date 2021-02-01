@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { ResultItem } = require('./getdiff-helpers');
 const { getObject } = require('./parsers');
-const { createFormatter } = require('./formatters/index');
+const createFormatter = require('./formatters/index');
 const { sortAscByKey } = require('./utils/sorters');
 
 const isObjectAndNotNull = (src) => (typeof src === 'object' && src !== null);
