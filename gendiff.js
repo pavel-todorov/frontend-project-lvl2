@@ -1,142 +1,78 @@
-const lodash = require('lodash');
-const { ResultArray, ResultItem } = require('./getdiff-helpers');
+const _ = require('lodash');
+const { ResultItem } = require('./getdiff-helpers');
 const { getObject } = require('./parsers');
-const { sortAsc } = require('./utils/sorters');
 const { createFormatter } = require('./formatters/index');
-
-const getObjectsFields = (src, path = '') => {
-  const result = [];
-  let obj = src;
-  let pathPrefix = '';
-  if (path !== '') {
-    obj = lodash.get(src, path);
-    pathPrefix = `${path}.`;
-  }
-  lodash.forIn(obj, (value, key) => {
-    const fullKey = `${pathPrefix}${key}`;
-    result.push(fullKey);
-    if (typeof value === 'object' && value !== null) {
-      result.push(...getObjectsFields(src, fullKey));
-      result.push(`${fullKey}<<<<<`);
-    }
-  });
-  return result;
-};
 
 const isObjectAndNotNull = (src) => (typeof src === 'object' && src !== null);
 
-const isNotObjectAndNotNull = (src) => !isObjectAndNotNull(src);
-
-const isNotSpecialCase = (caseValue, field) => (caseValue === undefined
-  || !lodash.startsWith(field, caseValue));
-
-const isNeedToAddSpecialCase = (caseValue, field) => (caseValue === undefined)
-  || !lodash.startsWith(field, caseValue);
-
-const checkIsNotSpecialCaseAndGenerateItem = (caseValue, field, type, value = undefined) => {
-  if (isNotSpecialCase(caseValue, field)) {
-    return new ResultItem(type, field, value);
-  }
-  return new ResultItem(' ', field, value);
-};
-
-const computeSpecialCase = (caseValue, field) => {
-  if (isNeedToAddSpecialCase(caseValue, field)) {
-    return field;
-  }
-  return caseValue;
-};
-
 const isUndefined = (value) => value === undefined;
 
-const checkMatrix = [
-  {
-    check: [isObjectAndNotNull, isObjectAndNotNull],
-    do: (resultArray, specialCases, field) => {
-      resultArray.push(new ResultItem(' ', field));
-    },
-  },
-  {
-    check: [isUndefined, isObjectAndNotNull],
-    do: (resultArray, specialCases, field) => {
-      resultArray.push(checkIsNotSpecialCaseAndGenerateItem(specialCases.checkGroup.get('+'), field, '+'));
-      if (isNeedToAddSpecialCase(specialCases.checkGroup.get('+'), field)) {
-        specialCases.checkGroup.set('+', field);
-      }
-    },
-  },
-  {
-    check: [isObjectAndNotNull, isUndefined],
-    do: (resultArray, specialCases, field) => {
-      resultArray.push(checkIsNotSpecialCaseAndGenerateItem(specialCases.checkGroup.get('-'), field, '-'));
-      specialCases.checkGroup.set('-', computeSpecialCase(specialCases.checkGroup.get('-'), field));
-    },
-  },
-  {
-    check: [isObjectAndNotNull, isNotObjectAndNotNull],
-    do: (resultArray, specialCases, field, value1, value2) => {
-      resultArray.push(new ResultItem('-', field));
-      specialCases.checkGroup.set('-', computeSpecialCase(specialCases.checkGroup.get('-'), field));
-      specialCases.lastInGroup.set(field, new ResultItem('+', field, value2));
-    },
-  },
-  {
-    check: [isNotObjectAndNotNull, isObjectAndNotNull],
-    do: (resultArray, specialCases, field, value1) => {
-      resultArray.push(new ResultItem('-', field, value1));
-      resultArray.push(new ResultItem('+', field));
-    },
-  },
-  {
-    check: [isNotObjectAndNotNull, isUndefined],
-    do: (resultArray, specialCases, field, value1) => {
-      resultArray.push(checkIsNotSpecialCaseAndGenerateItem(specialCases.checkGroup.get('-'), field, '-', value1));
-    },
-  },
-  {
-    check: [isUndefined, isNotObjectAndNotNull],
-    do: (resultArray, specialCases, field, value1, value2) => {
-      resultArray.push(checkIsNotSpecialCaseAndGenerateItem(specialCases.checkGroup.get('+'), field, '+', value2));
-    },
-  },
-  {
-    check: [isNotObjectAndNotNull, isNotObjectAndNotNull],
-    do: (resultArray, specialCases, field, value1, value2) => {
-      if (value1 === value2) {
-        resultArray.push(new ResultItem(' ', field, value1));
-      } else {
-        resultArray.push(new ResultItem('-', field, value1));
-        resultArray.push(new ResultItem('+', field, value2));
-      }
-    },
-  },
-];
+const isNotObjectAndNotNull = (src) => (typeof src !== 'object' && src !== null);
 
-const compareObjectsByFields = (object1, object2, fields) => {
-  const resultArray = new ResultArray();
-  const specialCases = { lastInGroup: new Map(), checkGroup: new Map() };
-  fields.forEach((field) => {
-    if (lodash.endsWith(field, '<<<<<')) {
-      resultArray.push(new ResultItem('<', field));
-      ['+', '-'].forEach((sign) => {
-        if (!lodash.startsWith(field, specialCases.checkGroup.get(sign))) {
-          specialCases.checkGroup.set(sign, undefined);
-        }
-      });
-    } else {
-      const value1 = lodash.get(object1, field);
-      const value2 = lodash.get(object2, field);
-      checkMatrix.some((check) => {
-        const isOk = check.check[0](value1) && check.check[1](value2);
-        if (isOk) {
-          check.do(resultArray, specialCases, field, value1, value2);
-        }
-        return isOk;
-      });
+const findNewFields = (object1, object2, path = '') => {
+  // console.log(`findNewFields ('${path}'): `);
+  let obj1 = object1;
+  let obj2 = object2;
+  let pathPrefix = '';
+  if (path !== '') {
+    obj1 = _.get(object1, path);
+    obj2 = _.get(object2, path);
+    pathPrefix = `${path}.`;
+  }
+  const res = [];
+  _.forIn(obj2, (value2, key) => {
+    const fullKey = `${pathPrefix}${key}`;
+    const value1 = _.get(obj1, key);
+    if (isUndefined(value1) && !isUndefined(value2)) {
+      // res.push(`${fullKey}: {null} -> ${JSON.stringify(value2)}`);
+      res.push(new ResultItem('+', fullKey, value2));
     }
   });
-  specialCases.lastInGroup.forEach((toAdd, key) => { resultArray.insertAfter(key, toAdd); });
-  return resultArray;
+  // console.log(`findNewFields: ${JSON.stringify(res)}`);
+  return res;
+};
+
+const compareObjects = (object1, object2, path = '') => {
+  // console.log(`compareObjects ('${path}'): `);
+  let obj1 = object1;
+  let obj2 = object2;
+  let pathPrefix = '';
+  if (path !== '') {
+    obj1 = _.get(object1, path);
+    obj2 = _.get(object2, path);
+    pathPrefix = `${path}.`;
+  }
+  const res = [];
+  let currentItem;
+  _.forIn(obj1, (value1, key) => {
+    const fullKey = `${pathPrefix}${key}`;
+    const value2 = _.get(obj2, key);
+    // console.log(`${fullKey}: ${JSON.stringify(value1)} -> ${JSON.stringify(value2)}`);
+    if (isObjectAndNotNull(value1) && isUndefined(value2)) {
+      // res.push(`${fullKey}: ${JSON.stringify(value1)} -> {null}`);
+      res.push(new ResultItem('-', fullKey, value1));
+    } else if (isObjectAndNotNull(value1) && isObjectAndNotNull(value2)) {
+      // res.push(`${fullKey}: -> ({)`);
+      // res.push(...compareObjects(object1, object2, fullKey));
+      // res.push(`${fullKey}: <- (})`);
+      currentItem = new ResultItem(' ', fullKey);
+      currentItem.addSubItems(compareObjects(object1, object2, fullKey));
+      res.push(currentItem);
+    } else if (isNotObjectAndNotNull(value1) && isUndefined(value2)) {
+      res.push(new ResultItem('-', fullKey, value1));
+    } else {
+        if (value1 !== value2) {
+        res.push(new ResultItem('-', fullKey, value1));
+        res.push(new ResultItem('+', fullKey, value2));
+      } else {
+        res.push(new ResultItem(' ', fullKey, value1));
+      }
+    }
+  });
+  findNewFields(object1, object2, path).forEach((item) => res.push(item));
+  // res.push(...findNewFields(object1, object2, path));
+  // console.log(`compareObjects: ${JSON.stringify(res)}`);
+  return res;
 };
 
 const genDiff = (path1, path2, formatter = 'stylish') => {
@@ -150,11 +86,30 @@ const genDiff = (path1, path2, formatter = 'stylish') => {
     }
     const [object1, object2] = objects.map((obj) => obj.object);
 
-    const fields = lodash.union(getObjectsFields(object1), getObjectsFields(object2))
-      .sort(sortAsc);
-    const resultArray = compareObjectsByFields(object1, object2, fields);
 
-    return createFormatter(formatter).format(resultArray);
+
+    // console.log(`Array1: ${JSON.stringify(getObjectsFields(object1))}`);
+    // console.log(`Array2: ${JSON.stringify(getObjectsFields(object2))}`);
+
+    // const fields = _.unionWith(getObjectsFields(object1), getObjectsFields(object2),
+    //   (a, b) => a.key === b.key && a.type === b.type)
+    //   .sort(sortKeyTypeObjectAsc);
+    // console.log(fields.map((field) => JSON.stringify(field)).join('\n'));
+    // const resultArray = compareObjectsByFields(object1, object2, fields);
+
+    // return createFormatter(formatter).format(resultArray);
+
+    const res = compareObjects(object1, object2);
+
+    // console.log(`CompareObjects: ${JSON.stringify(res)}`);
+
+    return createFormatter(formatter).format(res);
+
+    // console.log(res.join('\n'));
+    // console.log(`${res.length}`);
+    // console.log(JSON.stringify(res));
+
+    // return JSON.stringify({ error: 'Not implemented' });
   } catch (err) {
     return JSON.stringify({
       error: err,
