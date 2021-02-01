@@ -18,9 +18,10 @@ program
       program.outputHelp();
       return;
     }
-    console.log(`${file1}, ${file2}`);
+    // console.log(`${file1}, ${file2}`);
     const result = genDiff(file1, file2, program.opts().format);
-    console.log(`Result:\n${result}`);
+    console.log(result);
+    // console.log(`Result:\n${result}`);
   });
 
 program.parse(process.argv);
