@@ -19,7 +19,7 @@ const valueToString = (value) => {
   return `${value}`;
 };
 
-const itemArrayToString = (itemArray) => {
+export default function itemArrayToString(itemArray) {
   const res = { changings: [] };
   const data = getValuedItems(itemArray);
   let skip = false;
@@ -27,16 +27,16 @@ const itemArrayToString = (itemArray) => {
     if (!skip) {
       const nextItem = data[index + 1];
       if (isStateAdd(item)) {
-        res.changings.push({ property: item.key, was: 'added', toValue: valueToString(item.value) });
+        res.changings = [...res.changing, { property: item.key, was: 'added', toValue: valueToString(item.value) }];
       } else if (isStateRemove(item, nextItem)) {
-        res.changings.push({ property: item.key, was: 'removed' });
+        res.changings = [...res.changings, { property: item.key, was: 'removed' }];
       } else if (isStateUpdate(item, nextItem)) {
-        res.changings.push({
+        res.changings = [...res.changings, {
           property: item.key,
           was: 'updated',
           fromValue: valueToString(item.value),
           toValue: valueToString(nextItem.value),
-        });
+        }];
         skip = true;
       }
     } else {
@@ -44,6 +44,4 @@ const itemArrayToString = (itemArray) => {
     }
   });
   return JSON.stringify(res);
-};
-
-module.exports = itemArrayToString;
+}
