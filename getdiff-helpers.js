@@ -2,6 +2,7 @@
 /* eslint fp/no-mutation: ["off"] */
 /* eslint fp/no-class: ["off"] */
 /* eslint fp/no-this: ["off"] */
+/* eslint fp/no-mutating-methods: ["off"] */
 const lodash = require('lodash');
 const { sortAscByKey } = require('./utils/sorters');
 

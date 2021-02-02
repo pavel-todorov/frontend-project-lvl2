@@ -1,3 +1,4 @@
+/* eslint fp/no-mutation: ["off"] */
 const yaml = require('js-yaml');
 const fs = require('fs');
 const path = require('path');
