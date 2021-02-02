@@ -1,4 +1,5 @@
 /* eslint fp/no-mutating-methods: ["off"] */
+/* eslint fp/no-mutation: ["off"] */
 const {
   isStateAdd,
   isStateRemove,

@@ -1,3 +1,5 @@
+/* eslint fp/no-mutating-methods: ["off"] */
+/* eslint fp/no-mutation: ["off"] */
 const _ = require('lodash');
 
 const objectToString = (offset, obj) => {

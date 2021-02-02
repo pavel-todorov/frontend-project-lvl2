@@ -1,4 +1,5 @@
 /* eslint-disable max-classes-per-file */
+/* eslint fp/no-mutation: ["off"] */
 const stylishFormatter = require('./stylish.js');
 const plainFormatter = require('./plain.js');
 const jsonFormatter = require('./json.js');
