@@ -13,7 +13,7 @@ const isUndefined = (value) => value === undefined;
 
 const isNotObjectAndNotNull = (src) => (typeof src !== 'object' && src !== null);
 
-const findNewFields = (object1, object2, path = '') => {
+const initObjectsWithPath = (object1, object2, path) => {
   let obj1 = object1;
   let obj2 = object2;
   let pathPrefix = '';
@@ -22,6 +22,11 @@ const findNewFields = (object1, object2, path = '') => {
     obj2 = _.get(object2, path);
     pathPrefix = `${path}.`;
   }
+  return [obj1, obj2, pathPrefix];
+};
+
+const findNewFields = (object1, object2, path = '') => {
+  const [obj1, obj2, pathPrefix] = initObjectsWithPath(object1, object2, path);
   const res = [];
   _.forIn(obj2, (value2, key) => {
     const fullKey = `${pathPrefix}${key}`;
@@ -34,14 +39,7 @@ const findNewFields = (object1, object2, path = '') => {
 };
 
 const compareObjects = (object1, object2, path = '') => {
-  let obj1 = object1;
-  let obj2 = object2;
-  let pathPrefix = '';
-  if (path !== '') {
-    obj1 = _.get(object1, path);
-    obj2 = _.get(object2, path);
-    pathPrefix = `${path}.`;
-  }
+  const [obj1, obj2, pathPrefix] = initObjectsWithPath(object1, object2, path);
   const res = [];
   let currentItem;
   _.forIn(obj1, (value1, key) => {
