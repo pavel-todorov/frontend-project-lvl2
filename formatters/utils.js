@@ -1,3 +1,4 @@
+/* eslint fp/no-mutating-methods: ["off"] */
 const isStateAdd = (item) => item.state === '+';
 
 const isStateRemove = (item, nextItem) => item.state === '-' && nextItem !== undefined && item.key !== nextItem.key;

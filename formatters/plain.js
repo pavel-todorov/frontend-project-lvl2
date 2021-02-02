@@ -1,5 +1,6 @@
 /* eslint fp/no-mutating-methods: ["off"] */
 /* eslint fp/no-mutation: ["off"] */
+/* eslint fp/no-let: ["off"] */
 const {
   isStateAdd,
   isStateRemove,
@@ -24,18 +25,22 @@ const valueToString = (value) => {
 const itemArrayToString = (itemArray) => {
   const strings = [];
   const data = getValuedItems(itemArray);
-  for (let i = 0; i < data.length; i += 1) {
-    const item = data[i];
-    const nextItem = data[i + 1];
-    if (isStateAdd(item)) {
-      strings.push(`Property '${item.key}' was added with value: ${valueToString(item.value)}`);
-    } else if (isStateRemove(item, nextItem)) {
-      strings.push(`Property '${item.key}' was removed`);
-    } else if (isStateUpdate(item, nextItem)) {
-      strings.push(`Property '${item.key}' was updated. From ${valueToString(item.value)} to ${valueToString(nextItem.value)}`);
-      i += 1;
+  let skip = false;
+  data.forEach((item, index) => {
+    if (!skip) {
+      const nextItem = data[index + 1];
+      if (isStateAdd(item)) {
+        strings.push(`Property '${item.key}' was added with value: ${valueToString(item.value)}`);
+      } else if (isStateRemove(item, nextItem)) {
+        strings.push(`Property '${item.key}' was removed`);
+      } else if (isStateUpdate(item, nextItem)) {
+        strings.push(`Property '${item.key}' was updated. From ${valueToString(item.value)} to ${valueToString(nextItem.value)}`);
+        skip = true;
+      }
+    } else {
+      skip = false;
     }
-  }
+  });
   return strings.join('\n');
 };
 
