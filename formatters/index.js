@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file */
 const stylishFormatter = require('./stylish.js');
 const plainFormatter = require('./plain.js');
-const jsonFomatter = require('./json.js');
+const jsonFormatter = require('./json.js');
 
-const formatters = [['stylish', stylishFormatter], ['plain', plainFormatter], ['json', jsonFomatter]];
+const formatters = [['stylish', stylishFormatter], ['plain', plainFormatter], ['json', jsonFormatter]];
 
 const createFormatter = (type) => {
   const formattersMap = new Map(formatters);
