@@ -12,7 +12,7 @@ plugins:
   - fp
 rules: {
   max-classes-per-file: ["error", 3],
-  fp/no-mutation: ["off", {
-    "commonjs": true,
-    "allowThis": true}]
+  fp/no-mutation: ["off"],
+  fp/no-mutating-methods: ["off"],
+  fp/no-let: ["off"]
 }
