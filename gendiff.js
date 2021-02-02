@@ -1,3 +1,6 @@
+/* eslint fp/no-mutating-methods: ["off"] */
+/* eslint fp/no-mutation: ["off"] */
+/* eslint fp/no-let: ["off"] */
 const _ = require('lodash');
 const { ResultItem } = require('./getdiff-helpers');
 const { getObject } = require('./parsers');

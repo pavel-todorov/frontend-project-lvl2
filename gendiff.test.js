@@ -8,26 +8,26 @@ const expectationStylish = fs.readFileSync(getFixturePath('expectation_stylish.t
 const expectationPlain = fs.readFileSync(getFixturePath('expectation_plain.txt'), 'utf8');
 const expectationJsonObject = JSON.parse(fs.readFileSync(getFixturePath('expectation_json.json'), 'utf8'));
 
-test('Test with json normal case, default format', () => {
+test('Json normal case, default format', () => {
   expect(genDiff(getFixturePath('file1.json'), getFixturePath('file2.json'))).toBe(expectationStylish);
 });
 
-test('Test with yaml normal case, stylish format', () => {
+test('Yaml normal case, stylish format', () => {
   expect(genDiff(getFixturePath('file1.yml'), getFixturePath('file2.yml'), 'stylish')).toBe(expectationStylish);
 });
 
-test('Test with json normal case, plain format', () => {
+test('Json normal case, plain format', () => {
   expect(genDiff(getFixturePath('file1.json'), getFixturePath('file2.json'), 'plain')).toBe(expectationPlain);
 });
 
-test('Test with yaml normal case, json format', () => {
+test('Yaml normal case, json format', () => {
   expect(JSON.parse(genDiff(getFixturePath('file1.yml'), getFixturePath('file2.yml'), 'json'))).toMatchObject(expectationJsonObject);
 });
 
 test.each([
   ['file1.jso', 'file2.json'],
   ['file1.yml', 'file2.ym'],
-])('Test with error files (%s, %s)', (a, b) => {
+])('Error files case (%s, %s)', (a, b) => {
   expect(JSON.parse(genDiff(getFixturePath(a), getFixturePath(b)))).toEqual(
     expect.objectContaining({
       error: expect.any(String),

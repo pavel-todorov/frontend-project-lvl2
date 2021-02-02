@@ -1,3 +1,7 @@
+/* eslint-disable max-classes-per-file */
+/* eslint fp/no-mutation: ["off"] */
+/* eslint fp/no-class: ["off"] */
+/* eslint fp/no-this: ["off"] */
 const lodash = require('lodash');
 const { sortAscByKey } = require('./utils/sorters');
 
