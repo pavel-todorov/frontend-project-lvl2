@@ -9,6 +9,10 @@ parserOptions:
   ecmaVersion: 12
 plugins: 
   - jest
+  - fp
 rules: {
-  max-classes-per-file: ["error", 3]
+  max-classes-per-file: ["error", 3],
+  fp/no-mutation: ["off", {
+    "commonjs": true,
+    "allowThis": true}]
 }
