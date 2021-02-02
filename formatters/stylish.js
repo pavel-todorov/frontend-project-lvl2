@@ -25,15 +25,12 @@ const itemToString = (item) => {
     const subItems = item.subItems.map((subItem) => itemToString(subItem)).join('\n');
     return `${prefix}\n${subItems}\n${postfix}`;
   }
-  if (item.hasValue()) {
-    const valType = typeof item.value;
-    if (valType === 'object' && item.value !== null) {
-      const newOffset = ' '.repeat((item.getKeyLevel() + 1) * 4 - 2);
-      return `${prefix}\n${objectToString(newOffset, item.value).join('\n')}\n${postfix}`;
-    }
-    return `${offset}${item.state} ${item.getKeyToPrint()}: ${item.value}`;
+  const valType = typeof item.value;
+  if (valType === 'object' && item.value !== null) {
+    const newOffset = ' '.repeat((item.getKeyLevel() + 1) * 4 - 2);
+    return `${prefix}\n${objectToString(newOffset, item.value).join('\n')}\n${postfix}`;
   }
-  return `${offset}  }`;
+  return `${offset}${item.state} ${item.getKeyToPrint()}: ${item.value}`;
 };
 
 const itemArrayToString = (itemArray) => {
